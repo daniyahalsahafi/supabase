@@ -37,6 +37,16 @@ export type EventSettings = {
   organizer_logo_url: string | null;
 };
 
+export const defaultSettings: EventSettings = {
+  event_at: null,
+  date_label: "يُعلن لاحقًا",
+  time_label: "يُعلن لاحقًا",
+  venue: "يُعلن لاحقًا",
+  account_handle: "@handle",
+  socials: [],
+  organizer_logo_url: null,
+};
+
 export const clubsQuery = queryOptions({
   queryKey: ["clubs"],
   queryFn: async () => {
@@ -56,9 +66,9 @@ export const matchesQuery = queryOptions({
 export const settingsQuery = queryOptions({
   queryKey: ["settings"],
   queryFn: async () => {
-    const { data, error } = await supabase.from("event_settings").select("*").eq("id", 1).single();
+    const { data, error } = await supabase.from("event_settings").select("*").eq("id", 1).maybeSingle();
     if (error) throw error;
-    return data as unknown as EventSettings;
+    return (data ?? defaultSettings) as unknown as EventSettings;
   },
 });
 
