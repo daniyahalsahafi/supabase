@@ -86,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      match_votes: {
+        Row: {
+          choice_club_id: string
+          created_at: string
+          id: string
+          match_id: string
+          phase: string
+          voter_hash: string
+        }
+        Insert: {
+          choice_club_id: string
+          created_at?: string
+          id?: string
+          match_id: string
+          phase: string
+          voter_hash: string
+        }
+        Update: {
+          choice_club_id?: string
+          created_at?: string
+          id?: string
+          match_id?: string
+          phase?: string
+          voter_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_votes_choice_club_id_fkey"
+            columns: ["choice_club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_votes_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           club_a_id: string | null
@@ -176,6 +218,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      voting_controls: {
+        Row: {
+          match_id: string
+          post_open: boolean
+          pre_open: boolean
+          updated_at: string
+        }
+        Insert: {
+          match_id: string
+          post_open?: boolean
+          pre_open?: boolean
+          updated_at?: string
+        }
+        Update: {
+          match_id?: string
+          post_open?: boolean
+          pre_open?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voting_controls_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: true
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
