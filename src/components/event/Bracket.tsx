@@ -13,7 +13,7 @@ function fmt(d: string | null) {
 function Slot({ club, score, state, placeholder }: { club: Club | undefined; score: number | null; state: "won" | "lost" | "none"; placeholder: string }) {
   return (
     <div className={cn("flex items-center gap-3 rounded-lg border px-3 py-2",
-      state === "won" ? "border-sage bg-sage-soft" : "border-border bg-card",
+      state === "won" ? "border-border bg-sage-soft" : "border-border bg-card",
       state === "lost" && "opacity-50")}>
       {club ? <ClubLogo club={club} size="sm" /> : <span className="h-9 w-9 rounded-lg border border-dashed border-border" />}
       <div className="flex-1">
@@ -38,7 +38,7 @@ function MatchCard({ m, clubs, placeholders, highlight }: { m: Match; clubs: Clu
   const l = officialLoser(m);
   const st = (id: string | null) => (id && id === w ? "won" : id && id === l ? "lost" : "none") as "won" | "lost" | "none";
   return (
-    <div className={cn("geo-frame rounded-xl bg-card p-4 shadow-card", highlight && "ring-2 ring-accent/40")}>
+    <div className={cn("rounded-xl bg-card p-4 shadow-card", highlight && "ring-2 ring-accent/40")}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <h4 className="font-display text-primary">{roundLabel(m)}</h4>
         <span className={cn("rounded-full px-2.5 py-0.5 text-xs",
@@ -66,12 +66,10 @@ export function Bracket({ clubs, matches }: { clubs: Club[]; matches: Match[] })
         {sf1 && <MatchCard m={sf1} clubs={clubs} placeholders={["النادي الأول", "النادي الثاني"]} />}
         {sf2 && <MatchCard m={sf2} clubs={clubs} placeholders={["النادي الثالث", "النادي الرابع"]} />}
       </div>
-      <div className="hidden h-full w-10 flex-col justify-center lg:flex" aria-hidden>
-        <div className="h-1/2 rounded-l-xl border-y-2 border-l-2 border-sage" />
-      </div>
+      <div className="hidden w-10 lg:block" aria-hidden />
       <div className="space-y-4">
         {final && <MatchCard m={final} clubs={clubs} highlight placeholders={["الفائز من نصف النهائي الأول", "الفائز من نصف النهائي الثاني"]} />}
-        <div className="geo-frame flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground">
+        <div className="flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground">
           {champ ? <Crown className="h-7 w-7 text-accent" /> : <Trophy className="h-7 w-7 text-accent" />}
           <div>
             <div className="text-xs opacity-80">بطل المناظرة</div>

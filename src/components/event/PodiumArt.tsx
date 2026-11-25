@@ -11,7 +11,6 @@ export function PodiumArt() {
         ))}
       </g>
       {/* frames */}
-      <rect x="70" y="20" width="260" height="210" rx="10" fill="none" className="stroke-sage" strokeWidth="1.5" />
       <rect x="82" y="32" width="236" height="186" rx="8" fill="none" className="stroke-border" strokeWidth="1" />
       {/* podium */}
       <path d="M140 120 L260 120 L248 232 L152 232 Z" className="fill-primary" />

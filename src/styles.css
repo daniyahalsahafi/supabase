@@ -148,26 +148,6 @@
   background-color: var(--background);
 }
 
-@utility geo-frame {
-  position: relative;
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 10px;
-    border: 1px solid var(--sage);
-    border-radius: calc(var(--radius) - 2px);
-    pointer-events: none;
-  }
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    pointer-events: none;
-  }
-}
-
 @utility side-band { background-image: var(--gradient-side-band); color: var(--primary-foreground); }
 
 @keyframes pulse-ring { 0%,100% { transform: scale(1); opacity: .9 } 50% { transform: scale(1.08); opacity: 1 } }

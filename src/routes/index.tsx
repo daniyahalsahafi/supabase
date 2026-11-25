@@ -72,7 +72,7 @@ function Index() {
 
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
         <div>
-          <span className="inline-block rounded-full border border-sage bg-sage-soft px-4 py-1 text-sm text-secondary-foreground">
+          <span className="inline-block rounded-full bg-sage-soft px-4 py-1 text-sm text-secondary-foreground">
             مناظرة نادي ريادة الأعمال
           </span>
 
@@ -121,7 +121,7 @@ function Index() {
           </div>
 
           <div className="flex justify-center md:pt-40">
-            <span className="animate-vs grid h-20 w-20 place-items-center rounded-full border-4 border-sage bg-primary font-display text-2xl text-accent shadow-card">
+            <span className="animate-vs grid h-20 w-20 place-items-center rounded-full bg-primary font-display text-2xl text-accent shadow-card">
               VS
             </span>
           </div>
@@ -158,7 +158,7 @@ function Index() {
         id="tug"
         className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-20"
       >
-        <div className="geo-frame flex flex-col items-center gap-4 rounded-xl bg-card p-8 text-center shadow-card md:flex-row md:text-start">
+        <div className="flex flex-col items-center gap-4 rounded-xl bg-card p-8 text-center shadow-card md:flex-row md:text-start">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
             <Users className="h-7 w-7" />
           </span>

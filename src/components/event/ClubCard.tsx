@@ -8,7 +8,7 @@ export function ClubLogo({ club, size = "md" }: { club: Pick<Club, "logo_url" | 
   return club.logo_url ? (
     <img src={club.logo_url} alt={`شعار ${club.name}`} className={cn(cls, "rounded-lg object-contain bg-card")} />
   ) : (
-    <span className={cn(cls, "grid place-items-center rounded-lg border border-dashed border-sage bg-muted text-muted-foreground")} aria-label="شعار النادي (يُضاف لاحقًا)">
+    <span className={cn(cls, "grid place-items-center rounded-lg border border-dashed border-border bg-muted text-muted-foreground")} aria-label="شعار النادي (يُضاف لاحقًا)">
       <Shield className={size === "sm" ? "h-4 w-4" : "h-7 w-7"} />
     </span>
   );
@@ -16,7 +16,7 @@ export function ClubLogo({ club, size = "md" }: { club: Pick<Club, "logo_url" | 
 
 export function ClubCard({ club }: { club: Club }) {
   return (
-    <article className="geo-frame flex flex-col overflow-hidden rounded-xl bg-card shadow-card">
+    <article className="flex flex-col overflow-hidden rounded-xl bg-card shadow-card">
       <div className="side-band flex items-center justify-between px-5 py-2 text-xs font-semibold">
         <span>النادي {club.slot}</span>
         <span>الموقف: {positionLabel[club.position]}</span>
