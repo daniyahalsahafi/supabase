@@ -16,8 +16,8 @@ export function ClubLogo({ club, size = "md" }: { club: Pick<Club, "logo_url" | 
 
 export function ClubCard({ club }: { club: Club }) {
   return (
-    <article className="geo-frame flex flex-col rounded-xl bg-card shadow-card">
-      <div className="side-band flex items-center justify-between rounded-t-xl px-5 py-2 text-xs font-semibold">
+    <article className="geo-frame flex flex-col overflow-hidden rounded-xl bg-card shadow-card">
+      <div className="side-band flex items-center justify-between px-5 py-2 text-xs font-semibold">
         <span>النادي {club.slot}</span>
         <span>الموقف: {positionLabel[club.position]}</span>
       </div>

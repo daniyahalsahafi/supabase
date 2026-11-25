@@ -150,14 +150,12 @@
 
 @utility geo-frame {
   position: relative;
-  /* Distance of the geometric frame outside the card's outer edge. */
-  --geo-frame-offset: 5px;
   &::before {
     content: "";
     position: absolute;
-    inset: calc(-1 * var(--geo-frame-offset));
+    inset: 10px;
     border: 1px solid var(--sage);
-    border-radius: calc(var(--radius) + 4px + var(--geo-frame-offset));
+    border-radius: calc(var(--radius) - 2px);
     pointer-events: none;
   }
   &::after {

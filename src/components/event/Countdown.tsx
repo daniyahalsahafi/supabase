@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 
 export function Countdown({ target }: { target: string | null }) {
   const [now, setNow] = useState<number | null>(null);
@@ -17,11 +17,7 @@ export function Countdown({ target }: { target: string | null }) {
   return (
     <div className="flex justify-center gap-2 sm:gap-3" aria-label="العد التنازلي">
       {parts.map((p) => (
-        <div
-          key={p.l}
-          className="geo-frame min-w-16 rounded-xl bg-card px-3 py-3 text-center shadow-card"
-          style={{ "--geo-frame-offset": "3px" } as CSSProperties}
-        >
+        <div key={p.l} className="geo-frame min-w-16 rounded-xl bg-card px-3 py-3 text-center shadow-card">
           <div className="font-display text-2xl text-primary tabular-nums sm:text-3xl">{p.v === null ? "--" : p.v}</div>
           <div className="text-xs text-brown">{p.l}</div>
         </div>
