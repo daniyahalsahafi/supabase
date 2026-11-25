@@ -75,6 +75,7 @@
   --color-sage-soft: var(--sage-soft);
   --color-navy: var(--navy);
   --color-beige: var(--beige);
+  --color-gold-soft: var(--gold-soft);
   --color-pattern: var(--pattern);
   --font-display: "Noto Sans Arabic", sans-serif;
   --font-sans: "Noto Sans Arabic", sans-serif;
@@ -108,6 +109,8 @@
   --sage-soft: oklch(0.94 0.04 130);
   --navy: oklch(0.28 0.08 268);
   --beige: oklch(0.92 0.03 85);
+  /* pale gold tint of the brand gold #F6B619 (oklch 0.79 0.15 85) */
+  --gold-soft: oklch(0.95 0.055 88);
   --pattern: oklch(0.93 0 0);
   --chart-1: oklch(0.28 0.08 268);
   --chart-2: oklch(0.79 0.15 85);

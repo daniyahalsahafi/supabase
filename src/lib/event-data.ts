@@ -42,7 +42,7 @@ export const defaultSettings: EventSettings = {
   date_label: "يُعلن لاحقًا",
   time_label: "يُعلن لاحقًا",
   venue: "يُعلن لاحقًا",
-  account_handle: "@handle",
+  account_handle: "@EntrClub_kau",
   socials: [],
   organizer_logo_url: null,
 };
