@@ -3,7 +3,7 @@ import placeholderLogo from "@/assets/organizer-logo-placeholder.svg";
 
 export function SiteHeader({ logoUrl }: { logoUrl?: string | null }) {
   return (
-    <header className="relative z-20 border-b border-navy/10 bg-gold-soft">
+    <header className="relative z-20 border-b border-navy/10 bg-background">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:flex-row">
         <nav className="flex items-center gap-5 text-sm font-medium text-primary">
           <a href="#clubs" className="hover:text-brown">الأندية</a>
