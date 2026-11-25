@@ -10,6 +10,7 @@ import { Countdown } from "@/components/event/Countdown";
 import { InfoCard } from "@/components/event/InfoCard";
 import { ClubCard } from "@/components/event/ClubCard";
 import { Bracket } from "@/components/event/Bracket";
+import { PreviousEdition } from "@/components/event/PreviousEdition";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -172,6 +173,8 @@ function Index() {
           </div>
         </div>
       </section>
+
+      <PreviousEdition />
 
       <SiteFooter handle={s.account_handle} socials={s.socials} />
     </div>

@@ -28,3 +28,5 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep the previous-edition section in a dedicated event component and load its photo from a CDN asset pointer, so homepage composition stays focused and media remains outside the repository.
