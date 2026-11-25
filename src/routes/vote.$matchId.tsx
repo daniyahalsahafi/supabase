@@ -26,6 +26,7 @@ function VotingPage() {
         .eq("id", matchId)
         .single();
 
+      
       if (matchError || !matchData) {
         setError("المواجهة غير موجودة.");
         setLoading(false);
