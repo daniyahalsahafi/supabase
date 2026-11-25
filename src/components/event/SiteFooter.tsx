@@ -18,7 +18,7 @@ export function SiteFooter({ handle, socials }: { handle: string; socials: Socia
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
             <div className="text-center sm:text-end">
               <div className="text-sm">
-                الحساب الرسمي: <span dir="ltr" className="font-semibold text-accent">{handle}</span>
+                @EntrClub_kau
               </div>
             </div>
 
