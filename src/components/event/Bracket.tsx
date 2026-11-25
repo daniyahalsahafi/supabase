@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Crown, Trophy } from "lucide-react";
 import type { Club, Match } from "@/lib/event-data";
 import { roundLabel, statusLabel } from "@/lib/event-data";
@@ -53,6 +54,15 @@ function MatchCard({ m, clubs, placeholders, highlight }: { m: Match; clubs: Clu
       </div>
       <div className="mt-3 text-xs text-muted-foreground">{fmt(m.scheduled_at)}</div>
       {m.result_notes && <p className="mt-1 text-xs text-brown">{m.result_notes}</p>}
+      <div className="mt-4">
+  <Link
+    to="/vote/$matchId"
+    params={{ matchId: m.id }}
+    className="block rounded-lg bg-accent px-4 py-3 text-center font-semibold text-accent-foreground transition hover:opacity-90"
+  >
+    التصويت على هذه المواجهة
+  </Link>
+</div>
     </div>
   );
 }
