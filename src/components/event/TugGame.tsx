@@ -129,8 +129,7 @@ return (
       <div
         className="tug-rope"
         style={{
-          left: `calc(10% - ${position * 0.3}%)`,
-        }}
+left: `calc(10% + ${position * 0.3}%)`,        }}
       >
         <span className="tug-knot" />
       </div>
