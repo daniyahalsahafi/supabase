@@ -53,36 +53,51 @@ export type Database = {
       event_settings: {
         Row: {
           account_handle: string
+          attendance_enabled: boolean
+          attendance_radius_m: number
           date_label: string
           event_at: string | null
           id: number
+          official_account_url: string
           organizer_logo_url: string | null
           socials: Json
           time_label: string
           updated_at: string
           venue: string
+          venue_latitude: number | null
+          venue_longitude: number | null
         }
         Insert: {
           account_handle?: string
+          attendance_enabled?: boolean
+          attendance_radius_m?: number
           date_label?: string
           event_at?: string | null
           id?: number
+          official_account_url?: string
           organizer_logo_url?: string | null
           socials?: Json
           time_label?: string
           updated_at?: string
           venue?: string
+          venue_latitude?: number | null
+          venue_longitude?: number | null
         }
         Update: {
           account_handle?: string
+          attendance_enabled?: boolean
+          attendance_radius_m?: number
           date_label?: string
           event_at?: string | null
           id?: number
+          official_account_url?: string
           organizer_logo_url?: string | null
           socials?: Json
           time_label?: string
           updated_at?: string
           venue?: string
+          venue_latitude?: number | null
+          venue_longitude?: number | null
         }
         Relationships: []
       }
@@ -130,12 +145,17 @@ export type Database = {
       }
       matches: {
         Row: {
+          archived_at: string | null
           club_a_id: string | null
           club_b_id: string | null
           confirmed_at: string | null
           confirmed_by: string | null
+          description: string
+          details: string
           id: string
+          is_visible: boolean
           match_number: number
+          name: string
           result_notes: string
           round: string
           scheduled_at: string | null
@@ -146,12 +166,17 @@ export type Database = {
           winner_id: string | null
         }
         Insert: {
+          archived_at?: string | null
           club_a_id?: string | null
           club_b_id?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
+          description?: string
+          details?: string
           id?: string
+          is_visible?: boolean
           match_number: number
+          name?: string
           result_notes?: string
           round: string
           scheduled_at?: string | null
@@ -162,12 +187,17 @@ export type Database = {
           winner_id?: string | null
         }
         Update: {
+          archived_at?: string | null
           club_a_id?: string | null
           club_b_id?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
+          description?: string
+          details?: string
           id?: string
+          is_visible?: boolean
           match_number?: number
+          name?: string
           result_notes?: string
           round?: string
           scheduled_at?: string | null
@@ -379,19 +409,25 @@ export type Database = {
         Row: {
           match_id: string
           post_open: boolean
+          post_results_visible: boolean
           pre_open: boolean
+          pre_results_visible: boolean
           updated_at: string
         }
         Insert: {
           match_id: string
           post_open?: boolean
+          post_results_visible?: boolean
           pre_open?: boolean
+          pre_results_visible?: boolean
           updated_at?: string
         }
         Update: {
           match_id?: string
           post_open?: boolean
+          post_results_visible?: boolean
           pre_open?: boolean
+          pre_results_visible?: boolean
           updated_at?: string
         }
         Relationships: [
@@ -409,12 +445,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_match_vote: {
+        Args: {
+          p_choice: string
+          p_match: string
+          p_phase: string
+          p_voter: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      match_vote_totals: {
+        Args: { p_match: string; p_phase: string }
+        Returns: Json
       }
     }
     Enums: {

@@ -1,0 +1,55 @@
+ALTER TABLE public.matches ADD COLUMN name text NOT NULL DEFAULT '', ADD COLUMN description text NOT NULL DEFAULT '', ADD COLUMN details text NOT NULL DEFAULT '', ADD COLUMN is_visible boolean NOT NULL DEFAULT true, ADD COLUMN archived_at timestamptz;
+ALTER TABLE public.matches DROP CONSTRAINT matches_match_number_check, DROP CONSTRAINT matches_round_check;
+ALTER TABLE public.matches ADD CONSTRAINT matches_match_number_check CHECK (match_number >= 1), ADD CONSTRAINT matches_round_check CHECK (round IN ('semifinal','final','independent'));
+UPDATE public.matches SET name=CASE match_number WHEN 1 THEN 'نصف النهائي الأول' WHEN 2 THEN 'نصف النهائي الثاني' WHEN 3 THEN 'النهائي' ELSE 'مسابقة '||match_number END WHERE name='';
+ALTER TABLE public.voting_controls ADD COLUMN pre_results_visible boolean NOT NULL DEFAULT false, ADD COLUMN post_results_visible boolean NOT NULL DEFAULT false;
+ALTER TABLE public.event_settings ADD COLUMN official_account_url text NOT NULL DEFAULT '', ADD COLUMN attendance_enabled boolean NOT NULL DEFAULT false, ADD COLUMN venue_latitude double precision, ADD COLUMN venue_longitude double precision, ADD COLUMN attendance_radius_m integer NOT NULL DEFAULT 200;
+UPDATE public.event_settings SET event_at='2026-12-07T10:00:00+03:00'::timestamptz WHERE id=1 AND event_at IS NULL AND date_label='2026/12/7' AND time_label='10:00am';
+GRANT SELECT,INSERT,UPDATE ON public.matches TO authenticated; GRANT SELECT ON public.matches TO anon; GRANT ALL ON public.matches TO service_role;
+DROP POLICY "public read tournament matches" ON public.matches;
+CREATE POLICY "Public visible matches" ON public.matches FOR SELECT TO anon,authenticated USING (is_visible AND archived_at IS NULL);
+CREATE POLICY "Admins read all matches" ON public.matches FOR SELECT TO authenticated USING (public.has_role(auth.uid(),'admin'));
+CREATE POLICY "Admins create matches" ON public.matches FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(),'admin') AND round='independent' AND match_number>3);
+CREATE POLICY "Admins read clubs" ON public.clubs FOR SELECT TO authenticated USING (public.has_role(auth.uid(),'admin'));
+GRANT SELECT,INSERT,UPDATE ON public.voting_controls TO authenticated; GRANT SELECT ON public.voting_controls TO anon; GRANT ALL ON public.voting_controls TO service_role;
+CREATE POLICY "Admins create controls" ON public.voting_controls FOR INSERT TO authenticated WITH CHECK (public.has_role(auth.uid(),'admin'));
+REVOKE ALL ON public.match_votes FROM anon,authenticated; GRANT ALL ON public.match_votes TO service_role;
+CREATE OR REPLACE FUNCTION public.validate_match() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN
+NEW.updated_at:=now();
+IF NEW.match_number<>OLD.match_number OR NEW.round<>OLD.round THEN RAISE EXCEPTION 'لا يمكن تغيير ترتيب المباريات'; END IF;
+IF NEW.round='semifinal' AND (NEW.club_a_id IS DISTINCT FROM OLD.club_a_id OR NEW.club_b_id IS DISTINCT FROM OLD.club_b_id) THEN RAISE EXCEPTION 'أطراف نصف النهائي ثابتة'; END IF;
+IF NEW.round='final' AND pg_trigger_depth()=1 AND (NEW.club_a_id IS DISTINCT FROM OLD.club_a_id OR NEW.club_b_id IS DISTINCT FROM OLD.club_b_id) THEN RAISE EXCEPTION 'أطراف النهائي تحدد تلقائيا'; END IF;
+IF NEW.winner_id IS NOT NULL AND NEW.winner_id IS DISTINCT FROM NEW.club_a_id AND NEW.winner_id IS DISTINCT FROM NEW.club_b_id THEN RAISE EXCEPTION 'الفائز يجب أن يكون أحد طرفي المباراة'; END IF;
+IF NEW.round='independent' AND (NEW.club_a_id IS DISTINCT FROM OLD.club_a_id OR NEW.club_b_id IS DISTINCT FROM OLD.club_b_id) AND EXISTS(SELECT 1 FROM public.match_votes WHERE match_id=NEW.id) THEN RAISE EXCEPTION 'لا يمكن تغيير الخيارات بعد استقبال أصوات'; END IF;
+IF NEW.status='confirmed' THEN
+IF NEW.winner_id IS NULL OR NEW.club_a_id IS NULL OR NEW.club_b_id IS NULL THEN RAISE EXCEPTION 'يجب تحديد الطرفين والفائز'; END IF;
+IF OLD.status<>'confirmed' THEN NEW.confirmed_at:=now(); NEW.confirmed_by:=auth.uid(); END IF;
+ELSE NEW.confirmed_at:=NULL; NEW.confirmed_by:=NULL; END IF; RETURN NEW; END; $$;
+CREATE OR REPLACE FUNCTION public.initialize_match_controls() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN INSERT INTO public.voting_controls(match_id) VALUES(NEW.id) ON CONFLICT DO NOTHING; RETURN NEW; END; $$;
+CREATE TRIGGER initialize_match_controls AFTER INSERT ON public.matches FOR EACH ROW EXECUTE FUNCTION public.initialize_match_controls();
+CREATE OR REPLACE FUNCTION public.accept_match_vote(p_match uuid,p_phase text,p_choice uuid,p_voter text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE m public.matches; c public.voting_controls; BEGIN
+SELECT * INTO m FROM public.matches WHERE id=p_match FOR SHARE;
+IF NOT FOUND OR NOT m.is_visible OR m.archived_at IS NOT NULL THEN RAISE EXCEPTION 'المسابقة غير متاحة'; END IF;
+SELECT * INTO c FROM public.voting_controls WHERE match_id=p_match FOR SHARE;
+IF NOT FOUND OR p_phase NOT IN ('pre','post') OR NOT (CASE p_phase WHEN 'pre' THEN c.pre_open ELSE c.post_open END) THEN RAISE EXCEPTION 'التصويت مغلق'; END IF;
+IF m.club_a_id IS NULL OR m.club_b_id IS NULL OR m.club_a_id=m.club_b_id OR p_choice NOT IN (m.club_a_id,m.club_b_id) THEN RAISE EXCEPTION 'الخيار غير صالح'; END IF;
+IF p_voter IS NULL OR length(p_voter)<>64 THEN RAISE EXCEPTION 'هوية المصوت غير صالحة'; END IF;
+INSERT INTO public.match_votes(match_id,phase,choice_club_id,voter_hash) VALUES(p_match,p_phase,p_choice,p_voter);
+UPDATE public.voting_controls SET updated_at=now() WHERE match_id=p_match;
+END; $$;
+REVOKE ALL ON FUNCTION public.accept_match_vote(uuid,text,uuid,text) FROM PUBLIC,anon,authenticated; GRANT EXECUTE ON FUNCTION public.accept_match_vote(uuid,text,uuid,text) TO service_role;
+CREATE OR REPLACE FUNCTION public.match_vote_totals(p_match uuid,p_phase text) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ DECLARE m public.matches; c public.voting_controls; a bigint; b bigint; admin boolean; BEGIN
+admin:=coalesce(public.has_role(auth.uid(),'admin'),false);
+SELECT * INTO m FROM public.matches WHERE id=p_match;
+IF NOT FOUND OR (NOT admin AND (NOT m.is_visible OR m.archived_at IS NOT NULL)) THEN RETURN NULL; END IF;
+SELECT * INTO c FROM public.voting_controls WHERE match_id=p_match;
+IF NOT FOUND OR p_phase NOT IN ('pre','post') THEN RETURN NULL; END IF;
+IF NOT admin AND NOT(CASE p_phase WHEN 'pre' THEN c.pre_results_visible ELSE c.post_results_visible END) THEN RETURN NULL; END IF;
+SELECT count(*) FILTER(WHERE choice_club_id=m.club_a_id),count(*) FILTER(WHERE choice_club_id=m.club_b_id) INTO a,b FROM public.match_votes WHERE match_id=p_match AND phase=p_phase;
+RETURN jsonb_build_object('clubA',a,'clubB',b,'total',a+b); END; $$;
+REVOKE ALL ON FUNCTION public.match_vote_totals(uuid,text) FROM PUBLIC; GRANT EXECUTE ON FUNCTION public.match_vote_totals(uuid,text) TO anon,authenticated,service_role;
+REVOKE EXECUTE ON FUNCTION public.initialize_match_controls() FROM PUBLIC,anon,authenticated;
+CREATE POLICY "Admins upload identity" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id='club-identity' AND public.has_role(auth.uid(),'admin'));
+CREATE POLICY "Admins read identity" ON storage.objects FOR SELECT TO authenticated USING (bucket_id='club-identity' AND public.has_role(auth.uid(),'admin'));
+CREATE POLICY "Admins delete identity" ON storage.objects FOR DELETE TO authenticated USING (bucket_id='club-identity' AND public.has_role(auth.uid(),'admin'));
+DO $$ DECLARE t text; BEGIN FOREACH t IN ARRAY ARRAY['matches','voting_controls','event_settings'] LOOP IF NOT EXISTS(SELECT 1 FROM pg_publication_tables WHERE pubname='supabase_realtime' AND schemaname='public' AND tablename=t) THEN EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I',t); END IF; END LOOP; END; $$;
