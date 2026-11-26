@@ -78,6 +78,6 @@ export const statusLabel: Record<MatchStatus, string> = {
   pending: "بانتظار الاعتماد",
   confirmed: "نتيجة معتمدة",
 };
-export const positionLabel = { supporting: "مؤيد", opposing: "معارض" } as const;
+export const positionLabel = { supporting: "", opposing: "" } as const;
 export const roundLabel = (m: Pick<Match, "match_number">) =>
   m.match_number === 3 ? "النهائي" : `نصف النهائي ${m.match_number === 1 ? "الأول" : "الثاني"}`;

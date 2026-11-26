@@ -21,7 +21,7 @@ function Slot({ club, score, state, placeholder }: { club: Club | undefined; sco
         <div className={cn("font-semibold", club ? "text-primary" : "text-muted-foreground")}>{club?.name ?? placeholder}</div>
         {club && (
           <div className={cn("text-xs", club.position === "supporting" ? "text-navy" : "text-accent")}>
-            {club.position === "supporting" ? "مؤيد" : "معارض"}
+            {""}
             {state === "lost" && " · خرج من البطولة"}
             {state === "won" && " · فائز"}
           </div>

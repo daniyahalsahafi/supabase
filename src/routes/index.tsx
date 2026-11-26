@@ -114,7 +114,7 @@ function Index() {
         <div className="grid items-start gap-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="space-y-6">
             <div className="text-center font-display text-navy">
-              الطرف المؤيد
+              {""}
             </div>
             {support.map((c) => (
               <ClubCard key={c.id} club={c} />
@@ -129,7 +129,7 @@ function Index() {
 
           <div className="space-y-6">
             <div className="text-center font-display text-navy">
-              الطرف المعارض
+              {""}
             </div>
             {oppose.map((c) => (
               <ClubCard key={c.id} club={c} />

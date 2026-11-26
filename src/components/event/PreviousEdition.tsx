@@ -7,7 +7,7 @@ export function PreviousEdition() {
         <div className="text-start">
           <div className="mb-5 flex items-center gap-3">
             <span className="h-2 w-2 rounded-full bg-sage" aria-hidden="true" />
-            <span className="text-sm font-semibold text-secondary-foreground">من هنا بدأت الحكاية</span>
+            <span className="text-sm font-semibold text-secondary-foreground">النسخة الأولى</span>
             <span dir="ltr" className="rounded-md bg-accent px-3 py-1 font-display text-lg font-bold text-accent-foreground">2025</span>
           </div>
           <h2 id="previous-edition-title" className="text-3xl font-semibold leading-relaxed md:text-4xl">
