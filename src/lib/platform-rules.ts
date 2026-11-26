@@ -36,6 +36,6 @@ export function percentages(totals: Totals) {
   return { a: totals.total ? Math.round(totals.clubA / totals.total * 1000) / 10 : 0, b: totals.total ? Math.round(totals.clubB / totals.total * 1000) / 10 : 0 };
 }
 export type Difficulty = 'easy' | 'medium' | 'hard';
-export const opponent = { easy: { strength: 3, delay: 900 }, medium: { strength: 5, delay: 650 }, hard: { strength: 7, delay: 470 } } as const;
+export const opponent = { easy: { strength: 9, delay: 300 }, medium: { strength: 15, delay: 650 / 3 }, hard: { strength: 21, delay: 470/3 } } as const;
 export function computerPull(level: Difficulty, random: number) { return opponent[level].strength * (0.65 + random * 0.7); }
 export function pullPosition(position: number, force: number) { return Math.max(-100, Math.min(100, position + force)); }
