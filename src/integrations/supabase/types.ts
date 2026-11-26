@@ -219,6 +219,162 @@ export type Database = {
         }
         Relationships: []
       }
+      vote_answers: {
+        Row: {
+          answer: Json
+          id: string
+          question_id: string
+          response_id: string
+        }
+        Insert: {
+          answer: Json
+          id?: string
+          question_id: string
+          response_id: string
+        }
+        Update: {
+          answer?: Json
+          id?: string
+          question_id?: string
+          response_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "vote_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vote_answers_response_id_fkey"
+            columns: ["response_id"]
+            isOneToOne: false
+            referencedRelation: "vote_responses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vote_forms: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_open: boolean
+          is_published: boolean
+          match_id: string
+          phase: string
+          results_visibility: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_open?: boolean
+          is_published?: boolean
+          match_id: string
+          phase: string
+          results_visibility?: Json
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_open?: boolean
+          is_published?: boolean
+          match_id?: string
+          phase?: string
+          results_visibility?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_forms_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vote_questions: {
+        Row: {
+          created_at: string
+          form_id: string
+          id: string
+          is_required: boolean
+          options: Json
+          position: number
+          question_text: string
+          question_type: string
+          settings: Json
+        }
+        Insert: {
+          created_at?: string
+          form_id: string
+          id?: string
+          is_required?: boolean
+          options?: Json
+          position?: number
+          question_text: string
+          question_type: string
+          settings?: Json
+        }
+        Update: {
+          created_at?: string
+          form_id?: string
+          id?: string
+          is_required?: boolean
+          options?: Json
+          position?: number
+          question_text?: string
+          question_type?: string
+          settings?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_questions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "vote_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vote_responses: {
+        Row: {
+          form_id: string
+          id: string
+          submitted_at: string
+          voter_hash: string
+        }
+        Insert: {
+          form_id: string
+          id?: string
+          submitted_at?: string
+          voter_hash: string
+        }
+        Update: {
+          form_id?: string
+          id?: string
+          submitted_at?: string
+          voter_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_responses_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "vote_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       voting_controls: {
         Row: {
           match_id: string
