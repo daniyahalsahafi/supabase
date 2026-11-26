@@ -156,10 +156,67 @@
 @keyframes pulse-ring { 0%,100% { transform: scale(1); opacity: .9 } 50% { transform: scale(1.08); opacity: 1 } }
 @utility animate-vs { animation: pulse-ring 2.4s ease-in-out infinite; }
 
-.tug-field { position: relative; height: 100px; overflow: hidden; background: var(--gold-soft); border-radius: 8px; }
-.tug-center { position: absolute; inset-block: 0; left: 50%; border-left: 2px dashed var(--border); }
-.tug-rope { position: absolute; height: 12px; top: 44px; left: 10%; width: 80%; background: repeating-linear-gradient(60deg, var(--accent) 0 8px, var(--brown) 8px 11px); border-radius: 8px; transition: transform 180ms ease-out; }
-.tug-knot { position: absolute; left: calc(50% - 9px); top: -10px; height: 32px; width: 18px; background: var(--primary); border-radius: 4px; }
-.tug-boundary { position: absolute; top: 24px; height: 50px; width: 3px; background: var(--primary); }
-.tug-boundary-player { left: 26%; } .tug-boundary-computer { right: 26%; }
-@media (prefers-reduced-motion: reduce) { .tug-rope, .animate-vs { transition: none; animation: none; } }
+.tug-field {
+  position: relative;
+  height: 100px;
+  overflow: hidden;
+  background: var(--gold-soft);
+  border-radius: 8px;
+  direction: ltr;
+}
+
+.tug-center {
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  border-left: 2px dashed var(--border);
+}
+
+.tug-rope {
+  position: absolute;
+  height: 12px;
+  top: 44px;
+  left: 10%;
+  width: 80%;
+  background: repeating-linear-gradient(
+    60deg,
+    var(--accent) 0 8px,
+    var(--brown) 8px 11px
+  );
+  border-radius: 8px;
+  transition: left 180ms ease-out;
+}
+
+.tug-knot {
+  position: absolute;
+  left: calc(50% - 9px);
+  top: -10px;
+  height: 32px;
+  width: 18px;
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+.tug-boundary {
+  position: absolute;
+  top: 24px;
+  height: 50px;
+  width: 3px;
+  background: var(--primary);
+}
+
+.tug-boundary-player {
+  left: 26%;
+}
+
+.tug-boundary-computer {
+  right: 26%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tug-rope,
+  .animate-vs {
+    transition: none;
+    animation: none;
+  }
+}
