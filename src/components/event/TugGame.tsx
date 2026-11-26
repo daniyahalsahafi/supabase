@@ -23,16 +23,71 @@ export function TugGame() {
         <option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option>
       </select>
     </div>
-    <div className="mx-auto flex max-w-2xl items-end justify-between px-4"><div><UserRound className="mx-auto mb-2 h-12 w-12 text-primary"/>أنت</div><div><Bot className="mx-auto mb-2 h-12 w-12 text-accent"/>الكمبيوتر</div></div>
-    <div className="tug-field mx-auto my-6 max-w-2xl" aria-label="ساحة شد الحبل">
-      <div className="tug-center"/>
-      <div className="tug-rope" style={{transform:`translateX(${-position*0.3}%)`}}><span className="tug-knot"/></div>
-      <span className="tug-boundary tug-boundary-player"/><span className="tug-boundary tug-boundary-computer"/>
-    </div>
-    <div role="status" className="mb-5 min-h-8 font-semibold">{state==='won'?'🎉 فزت بالجولة!':state==='lost'?'فاز الكمبيوتر بهذه الجولة':state==='ready'?'جولة جديدة':position>5?'أنت متقدم':position< -5?'الكمبيوتر متقدم':'القوة متوازنة'}</div>
-    <div className="flex flex-wrap justify-center gap-3">
-      {state==='ready'?<Button size="lg" onClick={start}><Play/>ابدأ اللعبة</Button>:<Button size="lg" variant="outline" onClick={start}><RotateCcw/>إعادة الجولة</Button>}
-      <Button size="lg" onClick={pull} disabled={state!=='playing'} className="touch-manipulation select-none bg-accent text-accent-foreground"><Hand/>اسحب!</Button>
-    </div>
-  </div>;
-}
+<div
+  dir="rtl"
+  className="mx-auto flex max-w-2xl items-end justify-between px-4"
+>
+  {/* الكمبيوتر - اليمين */}
+  <div className="text-center">
+    <Bot className="mx-auto mb-2 h-12 w-12 text-accent" />
+    الكمبيوتر
+  </div>
+
+  {/* اللاعب - اليسار */}
+  <div className="text-center">
+    <UserRound className="mx-auto mb-2 h-12 w-12 text-primary" />
+    أنت
+  </div>
+</div>
+
+<div className="tug-field mx-auto my-6 max-w-2xl" aria-label="ساحة شد الحبل">
+  <div className="tug-center" />
+
+  <div
+    className="tug-rope"
+    style={{ transform: `translateX(${position * 0.3}%)` }}
+  >
+    <span className="tug-knot" />
+  </div>
+
+  <span className="tug-boundary tug-boundary-player" />
+  <span className="tug-boundary tug-boundary-computer" />
+</div>
+
+<div role="status" className="mb-5 min-h-8 font-semibold">
+  {state === 'won'
+    ? '🎉 فزت بالجولة!'
+    : state === 'lost'
+      ? 'فاز الكمبيوتر بهذه الجولة'
+      : state === 'ready'
+        ? 'جولة جديدة'
+        : position > 5
+          ? 'أنت متقدم'
+          : position < -5
+            ? 'الكمبيوتر متقدم'
+            : 'القوة متوازنة'}
+</div>
+
+<div className="flex flex-wrap justify-center gap-3">
+  {state === 'ready' ? (
+    <Button size="lg" onClick={start}>
+      <Play />
+      ابدأ اللعبة
+    </Button>
+  ) : (
+    <Button size="lg" variant="outline" onClick={start}>
+      <RotateCcw />
+      إعادة الجولة
+    </Button>
+  )}
+
+  <Button
+    size="lg"
+    onClick={pull}
+    disabled={state !== 'playing'}
+    className="touch-manipulation select-none bg-accent text-accent-foreground"
+  >
+    <Hand />
+    اسحب!
+  </Button>
+</div>
