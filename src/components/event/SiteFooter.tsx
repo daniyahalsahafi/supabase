@@ -4,7 +4,7 @@ import type { SocialLink } from "@/lib/event-data";
 const icons: Record<string, typeof Link2> = { x: Twitter, twitter: Twitter, instagram: Instagram, linkedin: Linkedin, youtube: Youtube };
 const names: Record<string, string> = { x: "إكس", twitter: "إكس", instagram: "إنستغرام", linkedin: "لينكدإن", youtube: "يوتيوب" };
 
-export function SiteFooter({ handle, socials }: { handle: string; socials: SocialLink[] }) {
+export function SiteFooter({ handle, socials, accountUrl = '' }: { handle: string; socials: SocialLink[]; accountUrl?: string }) {
   const links = socials.filter((s) => s.url);
 
   return (
@@ -18,7 +18,7 @@ export function SiteFooter({ handle, socials }: { handle: string; socials: Socia
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
             <div className="text-center sm:text-end">
               <div className="text-sm">
-                @EntrClub_kau
+               {accountUrl ? <a href={accountUrl} target="_blank" rel="noopener noreferrer" dir="ltr">{handle}</a> : <span dir="ltr">{handle}</span>}
               </div>
             </div>
 

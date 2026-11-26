@@ -454,6 +454,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_match_vote_totals: {
+        Args: { p_match: string; p_phase: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

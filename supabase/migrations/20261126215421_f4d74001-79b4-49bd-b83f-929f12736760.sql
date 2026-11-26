@@ -1,0 +1,3 @@
+REVOKE EXECUTE ON FUNCTION public.match_vote_totals(uuid,text) FROM anon,authenticated;
+CREATE OR REPLACE FUNCTION public.admin_match_vote_totals(p_match uuid,p_phase text) RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT jsonb_build_object('clubA',count(*) FILTER(WHERE v.choice_club_id=m.club_a_id),'clubB',count(*) FILTER(WHERE v.choice_club_id=m.club_b_id),'total',count(v.id)) FROM public.matches m LEFT JOIN public.match_votes v ON v.match_id=m.id AND v.phase=p_phase WHERE m.id=p_match AND p_phase IN ('pre','post') GROUP BY m.id; $$;
+REVOKE ALL ON FUNCTION public.admin_match_vote_totals(uuid,text) FROM PUBLIC,anon,authenticated; GRANT EXECUTE ON FUNCTION public.admin_match_vote_totals(uuid,text) TO service_role;

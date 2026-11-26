@@ -1,5 +1,5 @@
 import { NetworkMesh } from "@/components/event/NetworkMesh";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import { clubsQuery, matchesQuery, settingsQuery } from "@/lib/event-data";
@@ -11,6 +11,9 @@ import { InfoCard } from "@/components/event/InfoCard";
 import { ClubCard } from "@/components/event/ClubCard";
 import { Bracket } from "@/components/event/Bracket";
 import { PreviousEdition } from "@/components/event/PreviousEdition";
+import { TugGame } from '@/components/event/TugGame';
+import { useEventUpdates } from '@/hooks/use-event-updates';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -59,6 +62,7 @@ function SectionTitle({
 }
 
 function Index() {
+  useEventUpdates();
   const { data: clubs } = useSuspenseQuery(clubsQuery);
   const { data: matches } = useSuspenseQuery(matchesQuery);
   const { data: s } = useSuspenseQuery(settingsQuery);
@@ -148,6 +152,9 @@ function Index() {
         />
 
         <Bracket clubs={clubs} matches={matches} />
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {matches.filter(m=>m.round==='independent').map(m=><article key={m.id} className="rounded-lg bg-card p-5 shadow-card"><h3 className="text-xl">{m.name}</h3><p className="my-3 text-muted-foreground">{m.description}</p><Button asChild><Link to="/vote/$matchId" params={{matchId:m.id}}>التصويت والنتائج</Link></Button></article>)}
+        </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           يتأهل الفائز في كل نصف نهائي إلى النهائي بعد اعتماد النتيجة رسميًا من
@@ -172,11 +179,12 @@ function Index() {
             </p>
           </div>
         </div>
+        <TugGame />
       </section>
 
       <PreviousEdition />
 
-      <SiteFooter handle={s.account_handle} socials={s.socials} />
+      <SiteFooter handle={s.account_handle} socials={s.socials} accountUrl={s.official_account_url ?? ''} />
     </div>
   );
 }

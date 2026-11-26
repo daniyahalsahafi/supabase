@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getPublicEvent } from './platform.functions';
 
 export type Representative = { name: string; role?: string; photo_url?: string };
 export type SocialLink = { platform: string; url: string };
@@ -17,7 +17,11 @@ export type MatchStatus = "scheduled" | "live" | "pending" | "confirmed";
 export type Match = {
   id: string;
   match_number: number;
-  round: "semifinal" | "final";
+  round: "semifinal" | "final" | "independent";
+  name: string;
+  description: string;
+  details: string;
+  is_visible: boolean;
   club_a_id: string | null;
   club_b_id: string | null;
   status: MatchStatus;
@@ -35,6 +39,7 @@ export type EventSettings = {
   account_handle: string;
   socials: SocialLink[];
   organizer_logo_url: string | null;
+  official_account_url?: string;
 };
 
 export const defaultSettings: EventSettings = {
@@ -50,25 +55,20 @@ export const defaultSettings: EventSettings = {
 export const clubsQuery = queryOptions({
   queryKey: ["clubs"],
   queryFn: async () => {
-    const { data, error } = await supabase.from("clubs").select("*").order("slot");
-    if (error) throw error;
-    return data as unknown as Club[];
+    return (await getPublicEvent()).clubs as unknown as Club[];
   },
 });
 export const matchesQuery = queryOptions({
   queryKey: ["matches"],
   queryFn: async () => {
-    const { data, error } = await supabase.from("matches").select("*").order("match_number");
-    if (error) throw error;
-    return data as unknown as Match[];
+    return (await getPublicEvent()).matches as unknown as Match[];
   },
 });
 export const settingsQuery = queryOptions({
   queryKey: ["settings"],
+  refetchInterval: 30000,
   queryFn: async () => {
-    const { data, error } = await supabase.from("event_settings").select("*").eq("id", 1).maybeSingle();
-    if (error) throw error;
-    return (data ?? defaultSettings) as unknown as EventSettings;
+    return ((await getPublicEvent()).settings ?? defaultSettings) as unknown as EventSettings;
   },
 });
 

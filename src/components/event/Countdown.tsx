@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { countdownParts } from '@/lib/platform-rules';
 
 export function Countdown({ target }: { target: string | null }) {
   const [now, setNow] = useState<number | null>(null);
@@ -7,12 +8,13 @@ export function Countdown({ target }: { target: string | null }) {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  const diff = target && now ? Math.max(0, new Date(target).getTime() - now) : null;
+  const time = now === null ? null : countdownParts(target, now);
+  if (time?.ended) return <div role="status" className="text-center font-semibold text-primary">حان موعد الفعالية!</div>;
   const parts = [
-    { l: "يوم", v: diff === null ? null : Math.floor(diff / 864e5) },
-    { l: "ساعة", v: diff === null ? null : Math.floor(diff / 36e5) % 24 },
-    { l: "دقيقة", v: diff === null ? null : Math.floor(diff / 6e4) % 60 },
-    { l: "ثانية", v: diff === null ? null : Math.floor(diff / 1e3) % 60 },
+    { l: "يوم", v: time?.days ?? null },
+    { l: "ساعة", v: time?.hours ?? null },
+    { l: "دقيقة", v: time?.minutes ?? null },
+    { l: "ثانية", v: time?.seconds ?? null },
   ];
   return (
     <div className="flex justify-center gap-2 sm:gap-3" aria-label="العد التنازلي">
