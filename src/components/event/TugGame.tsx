@@ -45,7 +45,7 @@ export function TugGame() {
 
   <div
     className="tug-rope"
-    style={{ transform: `translateX(${position * 0.3}%)` }}
+    style={{ transform: `translateX(${-position * 0.3}%)` }}
   >
     <span className="tug-knot" />
   </div>
