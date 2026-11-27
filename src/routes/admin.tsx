@@ -1,10 +1,17 @@
-```tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { supabase } from "../integrations/supabase/client";
 
 export const Route = createFileRoute("/admin")({
+  head: () => ({ meta: [
+    { title: 'إدارة روّاد المناظرة' },
+    { name: 'description', content: 'لوحة إدارة الأندية ومواجهات روّاد المناظرة.' },
+    { property: 'og:title', content: 'إدارة روّاد المناظرة' },
+    { property: 'og:description', content: 'لوحة إدارة الأندية ومواجهات روّاد المناظرة.' },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary' },
+  ] }),
   component: AdminPage,
 });
 
@@ -673,4 +680,3 @@ function AdminPage() {
     </main>
   );
 }
-```

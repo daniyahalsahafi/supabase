@@ -30,3 +30,4 @@ use the editor.
 <!-- LOVABLE:END -->
 
 - Keep the previous-edition section in a dedicated event component and load its photo from a CDN asset pointer, so homepage composition stays focused and media remains outside the repository.
+- Guest voting uses a server-created encrypted HttpOnly cookie identity and the existing database uniqueness constraint per match and phase; never accept browser-supplied voter identities, because client storage is forgeable.

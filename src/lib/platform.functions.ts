@@ -4,9 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import type { Database } from '@/integrations/supabase/types';
-import { distanceMeters, safeAccountUrl } from './platform-rules';
+import { safeAccountUrl } from './platform-rules';
+import { phaseInput, voteInput } from './vote-input';
 
-const phaseInput = z.object({ matchId: z.string().uuid(), phase: z.enum(['pre', 'post']) });
 export const getPublicEvent = createServerFn({ method: 'GET' }).handler(async () => {
   const url = process.env['SUPABASE_URL'];
   const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
@@ -70,7 +70,6 @@ export const adminAction = createServerFn({method:'POST'}).middleware([requireSu
   }
   if(data.kind==='settings') {
     const {kind,...fields}=data; const official_account_url=safeAccountUrl(fields.official_account_url);
-    if(fields.attendance_enabled && (fields.venue_latitude===null || fields.venue_longitude===null)) throw new Error('حدد إحداثيات الفعالية أولًا');
     if(fields.organizer_logo_url && !fields.organizer_logo_url.startsWith('https://') && !/^identity\/[\w.-]+$/.test(fields.organizer_logo_url)) throw new Error('مسار شعار غير صالح');
     const date=fields.event_at?new Date(fields.event_at):null;
     const r=await db.from('event_settings').update({...fields,official_account_url,date_label:date?new Intl.DateTimeFormat('ar-SA',{timeZone:'Asia/Riyadh',dateStyle:'long'}).format(date):'يُعلن لاحقًا',time_label:date?new Intl.DateTimeFormat('ar-SA',{timeZone:'Asia/Riyadh',timeStyle:'short'}).format(date):'يُعلن لاحقًا',updated_at:new Date().toISOString()}).eq('id',1).select('id').single();
@@ -97,22 +96,29 @@ export const adminAction = createServerFn({method:'POST'}).middleware([requireSu
   if(r.error) throw new Error(data.kind==='match'?'تعذر الحفظ؛ لا يمكن تغيير خيارات مواجهة لها أصوات أو أطراف البطولة الثابتة':'تعذر حفظ المسابقة');
   return {success:true};
 });
-export const attendanceCode = createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async ({context})=>{
-  const r=await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'}); if(r.error||!r.data)throw new Error('غير مصرح');
-  const secret=process.env['VOTING_SESSION_SECRET']; if(!secret)throw new Error('حماية التصويت غير مهيأة');
-  const { rotatingCode }=await import('./voting-identity.server');
-  setResponseHeader('Cache-Control','no-store'); return {code:await rotatingCode(secret,Math.floor(Date.now()/60000)),expiresAt:(Math.floor(Date.now()/60000)+1)*60000};
+export const getVotingState = createServerFn({method:'POST'}).inputValidator(phaseInput).handler(async ({data})=>{
+  setResponseHeader('Cache-Control','no-store');
+  const secret=process.env['VOTING_SESSION_SECRET']; if(!secret)throw new Error('التصويت غير مهيأ');
+  const session=await useSession<{voterId:string}>({password:secret,name:'event-voter',maxAge:31536000,cookie:{httpOnly:true,secure:true,sameSite:'lax',path:'/'}});
+  if(!session.data.voterId)await session.update({voterId:crypto.randomUUID()});
+  const id=session.data.voterId; if(!id)throw new Error('تعذر إنشاء هوية التصويت');
+  const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
+  const match=await supabaseAdmin.from('matches').select('id').eq('id',data.matchId).eq('is_visible',true).is('archived_at',null).maybeSingle();
+  if(match.error || !match.data)throw new Error('المسابقة غير متاحة');
+  const {hashIdentity}=await import('./voting-identity.server');
+  const [controls,vote,totals]=await Promise.all([
+    supabaseAdmin.from('voting_controls').select('pre_open,post_open,pre_results_visible,post_results_visible').eq('match_id',data.matchId).single(),
+    supabaseAdmin.from('match_votes').select('id').eq('match_id',data.matchId).eq('phase',data.phase).eq('voter_hash',await hashIdentity(secret,id)).limit(1),
+    supabaseAdmin.rpc('match_vote_totals',{p_match:data.matchId,p_phase:data.phase})
+  ]);
+  if(controls.error || vote.error || totals.error)throw new Error('تعذر تحميل التصويت');
+  return {controls:controls.data,voted:vote.data.length>0,totals:totals.data};
 });
-export const castVote = createServerFn({method:'POST'}).inputValidator(phaseInput.extend({choiceClubId:z.string().uuid(),code:z.string().regex(/^\d{6}$/),latitude:z.number().min(-90).max(90),longitude:z.number().min(-180).max(180),accuracy:z.number().min(0).max(100),locatedAt:z.number()})).handler(async ({data})=>{
+export const castVote = createServerFn({method:'POST'}).inputValidator(voteInput).handler(async ({data})=>{
   setResponseHeader('Cache-Control','no-store');
   const secret=process.env['VOTING_SESSION_SECRET']; if(!secret)throw new Error('التصويت غير مهيأ');
   const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
-  const s=await supabaseAdmin.from('event_settings').select('attendance_enabled,venue_latitude,venue_longitude,attendance_radius_m').eq('id',1).single();
-  if(s.error||!s.data.attendance_enabled||s.data.venue_latitude===null||s.data.venue_longitude===null)throw new Error('لم تُفعّل إعدادات الحضور بعد');
-  if(Math.abs(Date.now()-data.locatedAt)>60000 || distanceMeters(data.latitude,data.longitude,s.data.venue_latitude,s.data.venue_longitude)+data.accuracy>s.data.attendance_radius_m)throw new Error('يجب التواجد داخل نطاق الفعالية مع موقع دقيق');
-  const {rotatingCode,hashIdentity}=await import('./voting-identity.server');
-  const bucket=Math.floor(Date.now()/60000);
-  if(data.code!==await rotatingCode(secret,bucket) && data.code!==await rotatingCode(secret,bucket-1))throw new Error('رمز الحضور غير صحيح أو انتهت صلاحيته');
+  const {hashIdentity}=await import('./voting-identity.server');
   const session=await useSession<{voterId:string}>({password:secret,name:'event-voter',maxAge:31536000,cookie:{httpOnly:true,secure:true,sameSite:'lax',path:'/'}});
   if(!session.data.voterId)await session.update({voterId:crypto.randomUUID()});
   const id=session.data.voterId; if(!id)throw new Error('تعذر إنشاء هوية التصويت');
