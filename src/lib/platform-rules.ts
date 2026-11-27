@@ -5,31 +5,47 @@ export function countdownParts(target: string | null, now: number) {
   if (!target) return null;
 
   const match = target.match(
-    /^(\d{1,2}):(\d{2})\s*(صباحًا|صباحا|مساءً|مساء)\s+(\d{4})\/(\d{1,2})\/(\d{1,2})$/u
+    /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})([+-])(\d{2})(?::?(\d{2}))?$/
   );
 
-  if (!match) return null;
+  let timestamp: number;
 
-  const [, h, m, period, year, month, day] = match;
+  if (match) {
+    const [, y, mo, d, h, mi, s, sign, oh, om = "00"] = match;
 
-  let hours = Number(h);
-  const minutes = Number(m);
+    const offset =
+      (sign === "+" ? 1 : -1) *
+      (Number(oh) * 60 + Number(om));
 
-  if (period.startsWith("مساء") && hours !== 12) hours += 12;
-  if (period.startsWith("صباح") && hours === 12) hours = 0;
+    timestamp =
+      Date.UTC(
+        Number(y),
+        Number(mo) - 1,
+        Number(d),
+        Number(h),
+        Number(mi),
+        Number(s)
+      ) - offset * 60000;
+  } else {
+    timestamp = Date.parse(target);
+  }
 
-  const timestamp = Date.UTC(
-    Number(year),
-    Number(month) - 1,
-    Number(day),
-    hours - 3,
-    minutes
-  );
+  if (!Number.isFinite(timestamp)) return null;
 
-  const diff = Math.max(0, timestamp - now);
+  const diff = timestamp - now;
+
+  if (diff <= 0) {
+    return {
+      ended: true,
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    };
+  }
 
   return {
-    ended: diff === 0,
+    ended: false,
     days: Math.floor(diff / 86400000),
     hours: Math.floor(diff / 3600000) % 24,
     minutes: Math.floor(diff / 60000) % 60,
