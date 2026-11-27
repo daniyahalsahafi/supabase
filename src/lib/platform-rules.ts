@@ -1,11 +1,17 @@
 export type Phase = 'pre' | 'post';
 export type Totals = { clubA: number; clubB: number; total: number };
+
 export function countdownParts(target: string | null, now: number) {
-  const timestamp = target ? Date.parse(target) : NaN;
-  if (!Number.isFinite(timestamp)) return null;
+  if (!target) return null;
+  const match = target.match( /^(\d{1,2}):(\d{2})\s*(am|pm)\s+(\d{4})\/(\d{1,2})\/(\d{1,2})$/i  );
+  if (!match) return null;
+  let [, h, m, period, year, month, day] = match;  let hours = Number(h)  const minutes = Number(m);
+  if (period.toLowerCase() === "pm" && hours !== 12) hours += 12;  if (period.toLowerCase() === "am" && hours === 12) hours = 0;
+  const timestamp = Date.UTC( Number(year), Number(month) - 1,   Number(day),   hours - 3,  minutes  );
   const diff = Math.max(0, timestamp - now);
-  return { ended: diff === 0, days: Math.floor(diff / 86400000), hours: Math.floor(diff / 3600000) % 24, minutes: Math.floor(diff / 60000) % 60, seconds: Math.floor(diff / 1000) % 60 };
-}
+  return {
+    ended: diff === 0, days: Math.floor(diff / 86400000),  hours: Math.floor(diff / 3600000) % 24,  minutes: Math.floor(diff / 60000) % 60,  seconds: Math.floor(diff / 1000) % 60,} ;}
+
 export function riyadhToIso(value: string) {
   const date = new Date(`${value}:00+03:00`);
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) || !Number.isFinite(date.getTime())) throw new Error('موعد غير صالح');
