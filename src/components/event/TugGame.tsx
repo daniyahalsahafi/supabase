@@ -37,23 +37,22 @@ export function TugGame() {
         <option value="hard">صعب</option>
       </select>
     </div>
+{/* اللاعب والكمبيوتر */}
+<div className="mx-auto flex max-w-2xl items-end justify-between px-4">
 
-    {/* اللاعب والكمبيوتر */}
-    <div
-      dir="rtl"
-      className="mx-auto flex max-w-2xl items-end justify-between px-4"
-    >
-      <div className="text-center">
-        <Bot className="mx-auto mb-2 h-12 w-12 text-accent" />
-        الكمبيوتر
-      </div>
+  {/* أنت - يسار */}
+  <div className="text-center">
+    <UserRound className="mx-auto mb-2 h-12 w-12 text-primary" />
+    أنت
+  </div>
 
-      <div className="text-center">
-        <UserRound className="mx-auto mb-2 h-12 w-12 text-primary" />
-        أنت
-      </div>
-    </div>
+  {/* الكمبيوتر - يمين */}
+  <div className="text-center">
+    <Bot className="mx-auto mb-2 h-12 w-12 text-accent" />
+    الكمبيوتر
+  </div>
 
+</div>
     {/* ساحة شد الحبل */}
     <div
       className="tug-field mx-auto my-6 max-w-2xl"
